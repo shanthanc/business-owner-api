@@ -1,13 +1,12 @@
-package com.shanthan.springjpahibernatedemo;
+package com.shanthan.springmvcdemo;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class SpringJpaHibernateDemoApplicationTests {
+class SpringMvcDemoApplicationTests {
 
     @Test
     void contextLoads() {

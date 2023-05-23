@@ -1,4 +1,4 @@
-package com.shanthan.springjpahibernatedemo.exception;
+package com.shanthan.springmvcdemo.exception;
 
 import org.springframework.http.HttpStatus;
 

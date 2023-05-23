@@ -1,4 +1,4 @@
-package com.shanthan.springjpahibernatedemo.model;
+package com.shanthan.springmvcdemo.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,4 +1,4 @@
-package com.shanthan.springjpahibernatedemo.util;
+package com.shanthan.springmvcdemo.util;
 
 import org.springframework.stereotype.Component;
 

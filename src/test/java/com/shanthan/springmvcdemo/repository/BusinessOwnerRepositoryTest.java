@@ -1,11 +1,9 @@
-package com.shanthan.springjpahibernatedemo.repository;
+package com.shanthan.springmvcdemo.repository;
 
-import com.shanthan.springjpahibernatedemo.config.LocalAndTestDatabaseConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
@@ -17,7 +15,6 @@ import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TES
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 
 @DataJpaTest
-@Import(LocalAndTestDatabaseConfig.class)
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = NONE)
 @Sql(scripts = "classpath:test-data/insertData.sql", executionPhase = BEFORE_TEST_METHOD)

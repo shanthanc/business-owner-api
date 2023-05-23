@@ -1,13 +1,13 @@
-package com.shanthan.springjpahibernatedemo;
+package com.shanthan.springmvcdemo;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class SpringJpaHibernateDemoApplication {
+public class SpringMvcDemoApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(SpringJpaHibernateDemoApplication.class, args);
+        SpringApplication.run(SpringMvcDemoApplication.class, args);
     }
 
 }

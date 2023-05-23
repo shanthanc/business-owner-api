@@ -1,6 +1,6 @@
-package com.shanthan.springjpahibernatedemo.util;
+package com.shanthan.springmvcdemo.util;
 
-import com.shanthan.springjpahibernatedemo.model.State;
+import com.shanthan.springmvcdemo.model.State;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
