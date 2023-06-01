@@ -1,4 +1,4 @@
-package com.shanthan.springmvcdemo.repository;
+package com.shanthan.businessowner.repository;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

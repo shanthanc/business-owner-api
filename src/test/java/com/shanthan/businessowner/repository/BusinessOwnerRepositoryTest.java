@@ -1,4 +1,4 @@
-package com.shanthan.springmvcdemo.repository;
+package com.shanthan.businessowner.repository;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +45,13 @@ class BusinessOwnerRepositoryTest {
         assertEquals(2, businessOwnerEntities.size());
     }
 
+    @Test
+    void test_ForChecking_IfBusinessOwnerEntityExists_ByBusinessId_InDb() {
+        boolean resultTrue = subject.existsBusinessOwnerEntityByBusinessId(3L);
+        boolean resultFalse = subject.existsBusinessOwnerEntityByBusinessId(10L);
+        assertTrue(resultTrue);
+        assertFalse(resultFalse);
+    }
     @Test
     void test_ForChecking_UpdateBusinessOwnerEntityAttributes_ByBusinessId_FromDb() {
         BusinessOwnerEntity businessOwnerEntity = subject.getBusinessOwnerEntityByBusinessId(1L);

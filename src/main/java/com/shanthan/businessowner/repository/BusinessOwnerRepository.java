@@ -1,4 +1,4 @@
-package com.shanthan.springmvcdemo.repository;
+package com.shanthan.businessowner.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -12,6 +12,7 @@ public interface BusinessOwnerRepository extends JpaRepository<BusinessOwnerEnti
 
     List<BusinessOwnerEntity> getBusinessOwnerEntitiesByLastNameOrderByLastName(String lastName);
 
+    boolean existsBusinessOwnerEntityByBusinessId(Long businessId);
     void deleteBusinessOwnerEntityByBusinessId(Long businessId);
 
     BusinessOwnerEntity getBusinessOwnerEntityByBusinessId(Long businessId);

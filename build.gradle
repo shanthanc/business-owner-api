@@ -33,6 +33,12 @@ dependencies {
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     annotationProcessor 'org.projectlombok:lombok'
 
+    //swagger openApi
+    implementation ("org.springdoc:springdoc-openapi-ui:1.7.0")
+
+//    //spotless gradle plugin
+//    implementation 'com.diffplug.spotless:spotless-plugin-gradle:6.18.0'
+
     testCompileOnly("org.projectlombok:lombok")
     testAnnotationProcessor("org.projectlombok:lombok")
     testImplementation ("org.springframework.boot:spring-boot-starter-test") {

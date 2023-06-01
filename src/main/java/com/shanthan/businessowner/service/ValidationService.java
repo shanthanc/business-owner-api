@@ -1,6 +1,6 @@
-package com.shanthan.springmvcdemo.util;
+package com.shanthan.businessowner.service;
 
-import com.shanthan.springmvcdemo.model.State;
+import com.shanthan.businessowner.model.State;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 import static java.util.stream.Stream.of;
 
 @Component
-public class ValidationUtility {
+public class ValidationService {
 
     public boolean validateState(String state) {
         List<String> stateNames = of(State.values())

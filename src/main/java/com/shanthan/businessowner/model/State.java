@@ -1,4 +1,4 @@
-package com.shanthan.springmvcdemo.model;
+package com.shanthan.businessowner.model;
 
 public enum State {
     ALABAMA("Alabama", "AL"),

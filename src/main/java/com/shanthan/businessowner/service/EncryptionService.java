@@ -1,19 +1,23 @@
-package com.shanthan.springmvcdemo.util;
+package com.shanthan.businessowner.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-@Component
-public class Encryption {
+import static com.shanthan.businessowner.util.BusinessOwnerConstants.KEY;
+
+@Service
+@Slf4j
+public class EncryptionService {
 
     private static final String ALGORITHM = "AES";
-    private static final byte[] KEY = "aesEncryptionKey".getBytes(StandardCharsets.UTF_8); // 16 characters
 
-    public static String encrypt(String stringToEncrypt) throws Exception {
+    public String encrypt(String stringToEncrypt) throws Exception {
         SecretKeySpec secretKey = new SecretKeySpec(KEY, ALGORITHM);
         Cipher cipher = Cipher.getInstance(ALGORITHM);
         cipher.init(Cipher.ENCRYPT_MODE, secretKey);
@@ -22,7 +26,7 @@ public class Encryption {
         return Base64.getEncoder().encodeToString(cipherText);
     }
 
-    public static String decrypt(String stringToDecrypt) throws Exception {
+    public String decrypt(String stringToDecrypt) throws Exception {
         SecretKeySpec secretKey = new SecretKeySpec(KEY, ALGORITHM);
         Cipher cipher = Cipher.getInstance(ALGORITHM);
         cipher.init(Cipher.DECRYPT_MODE, secretKey);
