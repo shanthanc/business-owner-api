@@ -54,9 +54,9 @@ class MapperServiceTest {
                 .firstName(FIRST_NAME_1)
                 .lastName(LAST_NAME_1)
                 .address(ADDRESS_OBJECT_1)
-                .ssn(SOME_SSN)
-                .phoneNumber(SOME_PHONE)
-                .dateOfBirth(SOME_DOB)
+                .ssn(SOME_SSN_1)
+                .phoneNumber(SOME_PHONE_1)
+                .dateOfBirth(SOME_DOB_1)
                 .build();
     }
 
@@ -65,17 +65,17 @@ class MapperServiceTest {
         ObjectMapper objectMapper = new ObjectMapper();
         Address expectedAddress = objectMapper.readValue(ADDRESS_1_STRING, Address.class);
         when(mockObjectMapper.readValue(anyString(), eq(Address.class))).thenReturn(expectedAddress);
-        when(mockEncryptionService.decrypt(ENCYRPTED_SSN_1)).thenReturn(SOME_SSN);
-        when(mockEncryptionService.decrypt(ENCRYPTED_PHONE_NUMBER_1)).thenReturn(SOME_PHONE);
-        when(mockEncryptionService.decrypt(ENCRYPTED_DOB_1)).thenReturn(SOME_DOB_STRING);
+        when(mockEncryptionService.decrypt(ENCYRPTED_SSN_1)).thenReturn(SOME_SSN_1);
+        when(mockEncryptionService.decrypt(ENCRYPTED_PHONE_NUMBER_1)).thenReturn(SOME_PHONE_1);
+        when(mockEncryptionService.decrypt(ENCRYPTED_DOB_1)).thenReturn(SOME_DOB_STRING_1);
         BusinessOwner result = subject.mapEntityToObject(testBusinessOwnerEntity);
         assertEquals(FIRST_NAME_1, result.getFirstName());
         assertEquals(LAST_NAME_1, result.getLastName());
         assertEquals(ADDRESS_CITY_1, result.getAddress().getCity());
         assertEquals(ADDRESS_ZIPCODE_1, result.getAddress().getZipcode());
-        assertEquals(SOME_SSN, result.getSsn());
-        assertEquals(SOME_PHONE, result.getPhoneNumber());
-        assertEquals(SOME_DOB, result.getDateOfBirth());
+        assertEquals(SOME_SSN_1, result.getSsn());
+        assertEquals(SOME_PHONE_1, result.getPhoneNumber());
+        assertEquals(SOME_DOB_1, result.getDateOfBirth());
     }
 
     @Test
@@ -84,8 +84,8 @@ class MapperServiceTest {
         ObjectMapper objectMapper = new ObjectMapper();
         Address expectedAddress = objectMapper.readValue(ADDRESS_1_STRING, Address.class);
         when(mockObjectMapper.readValue(anyString(), eq(Address.class))).thenReturn(expectedAddress);
-        when(mockEncryptionService.decrypt(ENCYRPTED_SSN_1)).thenReturn(SOME_SSN);
-        when(mockEncryptionService.decrypt(ENCRYPTED_PHONE_NUMBER_1)).thenReturn(SOME_PHONE);
+        when(mockEncryptionService.decrypt(ENCYRPTED_SSN_1)).thenReturn(SOME_SSN_1);
+        when(mockEncryptionService.decrypt(ENCRYPTED_PHONE_NUMBER_1)).thenReturn(SOME_PHONE_1);
         when(mockEncryptionService.decrypt(ENCRYPTED_DOB_1)).thenThrow(new RuntimeException("someException"));
 
         BusinessOwnerException exception =
@@ -99,9 +99,9 @@ class MapperServiceTest {
         ObjectMapper objectMapper = new ObjectMapper();
         String addressString = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(ADDRESS_OBJECT_1);
         when(mockObjectMapper.writeValueAsString(any(Address.class))).thenReturn(addressString);
-        when(mockEncryptionService.encrypt(SOME_SSN)).thenReturn(ENCYRPTED_SSN_1);
-        when(mockEncryptionService.encrypt(SOME_PHONE)).thenReturn(ENCRYPTED_PHONE_NUMBER_1);
-        when(mockEncryptionService.encrypt(SOME_DOB_STRING)).thenReturn(ENCRYPTED_DOB_1);
+        when(mockEncryptionService.encrypt(SOME_SSN_1)).thenReturn(ENCYRPTED_SSN_1);
+        when(mockEncryptionService.encrypt(SOME_PHONE_1)).thenReturn(ENCRYPTED_PHONE_NUMBER_1);
+        when(mockEncryptionService.encrypt(SOME_DOB_STRING_1)).thenReturn(ENCRYPTED_DOB_1);
         BusinessOwnerEntity result = subject.mapObjectToEntity(testBusinessOwner);
 
         assertEquals(FIRST_NAME_1, result.getFirstName());
@@ -118,9 +118,9 @@ class MapperServiceTest {
         ObjectMapper objectMapper = new ObjectMapper();
         String addressString = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(ADDRESS_OBJECT_1);
         when(mockObjectMapper.writeValueAsString(any(Address.class))).thenReturn(addressString);
-        when(mockEncryptionService.encrypt(SOME_SSN)).thenReturn(ENCYRPTED_SSN_1);
-        when(mockEncryptionService.encrypt(SOME_PHONE)).thenThrow(new RuntimeException("someException"));
-        when(mockEncryptionService.encrypt(SOME_DOB_STRING)).thenReturn(ENCRYPTED_DOB_1);
+        when(mockEncryptionService.encrypt(SOME_SSN_1)).thenReturn(ENCYRPTED_SSN_1);
+        when(mockEncryptionService.encrypt(SOME_PHONE_1)).thenThrow(new RuntimeException("someException"));
+        when(mockEncryptionService.encrypt(SOME_DOB_STRING_1)).thenReturn(ENCRYPTED_DOB_1);
 
         BusinessOwnerException exception =
                 assertThrows(BusinessOwnerException.class, () -> subject.mapObjectToEntity(testBusinessOwner));
@@ -171,7 +171,7 @@ class MapperServiceTest {
     @Test
     void givenValidSsn_whenSsnEncryptionCalled_thenReturnEncryptedSsn() throws Exception {
         when(mockEncryptionService.encrypt(anyString())).thenReturn(ENCYRPTED_SSN_1);
-        String actualResult = subject.encryptField(SOME_SSN);
+        String actualResult = subject.encryptField(SOME_SSN_1);
         assertEquals(ENCYRPTED_SSN_1, actualResult);
     }
 
@@ -188,14 +188,14 @@ class MapperServiceTest {
 
         when(mockEncryptionService.encrypt(anyString())).thenThrow(new RuntimeException("someException"));
         BusinessOwnerException bex = assertThrows(BusinessOwnerException.class, () ->
-                subject.encryptField(SOME_SSN));
+                subject.encryptField(SOME_SSN_1));
         assertEquals(INTERNAL_SERVER_ERROR, bex.getHttpStatus());
     }
 
     @Test
     void givenValidPhoneNumber_whenSsnEncryptionCalled_thenReturnEncryptedPhoneNumber() throws Exception {
         when(mockEncryptionService.encrypt(anyString())).thenReturn(ENCRYPTED_PHONE_NUMBER_1);
-        String actualResult = subject.encryptField(SOME_PHONE);
+        String actualResult = subject.encryptField(SOME_PHONE_1);
         assertEquals(ENCRYPTED_PHONE_NUMBER_1, actualResult);
     }
 
@@ -212,14 +212,14 @@ class MapperServiceTest {
 
         when(mockEncryptionService.encrypt(anyString())).thenThrow(new RuntimeException("someException"));
         BusinessOwnerException bex = assertThrows(BusinessOwnerException.class, () ->
-                subject.encryptField(SOME_PHONE));
+                subject.encryptField(SOME_PHONE_1));
         assertEquals(INTERNAL_SERVER_ERROR, bex.getHttpStatus());
     }
 
     @Test
     void givenValidDob_whenDobEncryptionCalled_thenReturnEncryptedDobString() throws Exception {
         when(mockEncryptionService.encrypt(anyString())).thenReturn(ENCRYPTED_DOB_1);
-        String actualResult = subject.encryptDob(SOME_DOB);
+        String actualResult = subject.encryptDob(SOME_DOB_1);
         assertEquals(ENCRYPTED_DOB_1, actualResult);
     }
 
@@ -235,16 +235,16 @@ class MapperServiceTest {
     void givenSomeDob_whenDobEncryptionCalledCausesRuntimeException_thenThrowBusinessOwnerException() throws Exception {
         when(mockEncryptionService.encrypt(anyString())).thenThrow(new RuntimeException("someException"));
         BusinessOwnerException bex = assertThrows(BusinessOwnerException.class, () ->
-                subject.encryptDob(SOME_DOB));
+                subject.encryptDob(SOME_DOB_1));
         assertEquals(INTERNAL_SERVER_ERROR, bex.getHttpStatus());
     }
 
 
     @Test
     void givenEncryptedPhoneNumber_whenPhoneNumberDecryptionCalled_thenReturnDecryptedPhoneNumber() throws Exception {
-        when(mockEncryptionService.decrypt(anyString())).thenReturn(SOME_PHONE);
+        when(mockEncryptionService.decrypt(anyString())).thenReturn(SOME_PHONE_1);
         String actualResult = subject.decryptField(ENCRYPTED_PHONE_NUMBER_1);
-        assertEquals(SOME_PHONE, actualResult);
+        assertEquals(SOME_PHONE_1, actualResult);
     }
 
 
@@ -268,9 +268,9 @@ class MapperServiceTest {
 
     @Test
     void givenEncryptedSsn_whenSsnDecryptionCalled_thenReturnDecryptedSsn() throws Exception {
-        when(mockEncryptionService.decrypt(anyString())).thenReturn(SOME_SSN);
+        when(mockEncryptionService.decrypt(anyString())).thenReturn(SOME_SSN_1);
         String actualResult = subject.decryptField(ENCYRPTED_SSN_1);
-        assertEquals(SOME_SSN, actualResult);
+        assertEquals(SOME_SSN_1, actualResult);
     }
 
     @ParameterizedTest
@@ -292,9 +292,9 @@ class MapperServiceTest {
 
     @Test
     void givenEncryptedDob_whenDobDecryptionCalled_thenReturnDecryptedDob() throws Exception {
-        when(mockEncryptionService.decrypt(anyString())).thenReturn(SOME_DOB_STRING);
+        when(mockEncryptionService.decrypt(anyString())).thenReturn(SOME_DOB_STRING_1);
         LocalDate actualResult = subject.decryptDob(ENCRYPTED_DOB_1);
-        assertEquals(SOME_DOB, actualResult);
+        assertEquals(SOME_DOB_1, actualResult);
     }
 
     @ParameterizedTest
