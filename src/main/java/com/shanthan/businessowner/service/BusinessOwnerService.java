@@ -61,4 +61,37 @@ public class BusinessOwnerService {
         return businessOwners;
     }
 
+    public List<BusinessOwner> getBusinessOwnerListByLastName(String lastName) throws BusinessOwnerException {
+        if (lastName.isBlank()) {
+            log.error("Last name is null or empty. ");
+            throw new BusinessOwnerException(INTERNAL_SERVER_ERROR, "Last name is null or empty. Cannot proceed.");
+        }
+        List<BusinessOwner> businessOwners;
+        try {
+            List<BusinessOwnerEntity> entityList =
+                    businessOwnerRepository.getBusinessOwnerEntitiesByLastNameOrderByLastName(lastName);
+            businessOwners = new ArrayList<>();
+            for (BusinessOwnerEntity entity : entityList) {
+                businessOwners.add(mapperService.mapEntityToObject(entity));
+            }
+        } catch (Exception e) {
+            log.error("Error while retrieving list of business owner by last name ");
+            throw new BusinessOwnerException(INTERNAL_SERVER_ERROR, e.getMessage(), e);
+        }
+        return businessOwners;
+    }
+
+    public boolean deleteBusinessOwnerById(Long id) throws BusinessOwnerException {
+        log.info("Deleting business owner with id {} ", id);
+        try {
+            if (!businessOwnerRepository.existsBusinessOwnerEntityByBusinessId(id)) {
+                return false;
+            }
+            businessOwnerRepository.deleteBusinessOwnerEntityByBusinessId(id);
+        } catch (Exception ex) {
+            log.error("Error while trying to delete Business Owner from Db ");
+            throw new BusinessOwnerException(INTERNAL_SERVER_ERROR, ex.getMessage(), ex);
+        }
+        return true;
+    }
 }

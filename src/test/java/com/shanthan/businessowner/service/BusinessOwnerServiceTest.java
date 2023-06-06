@@ -35,8 +35,6 @@ class BusinessOwnerServiceTest {
     @Mock
     private MapperService mockMapperService;
 
-    private BusinessOwnerEntity testBusinessOwnerEntity;
-
     private BusinessOwnerEntity testBusinessOwnerEntity1;
     private BusinessOwnerEntity testBusinessOwnerEntity2;
     private BusinessOwnerEntity testBusinessOwnerEntity3;
@@ -169,10 +167,10 @@ class BusinessOwnerServiceTest {
                 .sorted(Comparator.comparing(BusinessOwner::getFirstName))
                 .toList();
 
-        when(mockBusinessOwnerRepository.getBusinessOwnerEntitiesByFirstNameOrderByFirstName(anyString()))
+        when(mockBusinessOwnerRepository.getBusinessOwnerEntitiesByLastNameOrderByLastName(anyString()))
                 .thenReturn(firstNameSameEntities);
 
-        List<BusinessOwner> result = subject.getBusinessOwnerListByFirstName(firstName);
+        List<BusinessOwner> result = subject.getBusinessOwnerListByLastName(firstName);
 
         assertNotNull(result);
         assertEquals(2, result.size());
@@ -186,9 +184,9 @@ class BusinessOwnerServiceTest {
     void givenFirstNameNullOrEmpty_whenCalledToRetrieveListOfBusinessOwners_thenThrowBusinessOwnerException(
             String firstName) {
         BusinessOwnerException bex = assertThrows(BusinessOwnerException.class, () ->
-               subject.getBusinessOwnerListByFirstName(firstName));
+                subject.getBusinessOwnerListByFirstName(firstName));
 
-       assertEquals(INTERNAL_SERVER_ERROR, bex.getHttpStatus());
+        assertEquals(INTERNAL_SERVER_ERROR, bex.getHttpStatus());
 
     }
 
@@ -200,7 +198,87 @@ class BusinessOwnerServiceTest {
                 subject.getBusinessOwnerListByFirstName(FIRST_NAME_1));
 
         assertEquals(INTERNAL_SERVER_ERROR, bex.getHttpStatus());
+    }
+
+    @Test
+    void givenLastName_whenCalledToRetrieveListOfBusinessOwners_thenReturnBusinessOwnersWithTheLastName() throws BusinessOwnerException {
+        String lastName = LAST_NAME_2;
+
+        List<BusinessOwnerEntity> firstNameSameEntities = testBusinessOwnerEntities.stream()
+                .filter(entity -> entity.getLastName().equals(lastName))
+                .sorted(Comparator.comparing(BusinessOwnerEntity::getFirstName))
+                .toList();
+
+        List<BusinessOwner> firstNameBusinessOwners = testBusinessOwners.stream()
+                .filter(bo -> bo.getLastName().equals(lastName))
+                .sorted(Comparator.comparing(BusinessOwner::getFirstName))
+                .toList();
+
+        when(mockBusinessOwnerRepository.getBusinessOwnerEntitiesByFirstNameOrderByFirstName(anyString()))
+                .thenReturn(firstNameSameEntities);
+
+        List<BusinessOwner> result = subject.getBusinessOwnerListByFirstName(lastName);
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+
+        verify(mockMapperService, times(2))
+                .mapEntityToObject(any(BusinessOwnerEntity.class));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"", " ", "  ", "    ",})
+    void givenLastNameNullOrEmpty_whenCalledToRetrieveListOfBusinessOwners_thenThrowBusinessOwnerException(
+            String lastName) {
+        BusinessOwnerException bex = assertThrows(BusinessOwnerException.class, () ->
+                subject.getBusinessOwnerListByLastName(lastName));
+
+        assertEquals(INTERNAL_SERVER_ERROR, bex.getHttpStatus());
 
     }
 
+    @Test
+    void givenLastName_whenCalledToRetrieveListOfBusinessOwnersErrorOccurs_thenThrowBusinessOwnerException() {
+        when(mockBusinessOwnerRepository.getBusinessOwnerEntitiesByLastNameOrderByLastName(anyString()))
+                .thenThrow(new RuntimeException("someException"));
+        BusinessOwnerException bex = assertThrows(BusinessOwnerException.class, () ->
+                subject.getBusinessOwnerListByLastName(LAST_NAME_2));
+
+        assertEquals(INTERNAL_SERVER_ERROR, bex.getHttpStatus());
+    }
+
+    @Test
+    void givenValidBusinessOwnerId_whenCalledToDeleteBusinessOwnerFromDb_thenReturnTrue() throws BusinessOwnerException {
+        doNothing().when(mockBusinessOwnerRepository).deleteBusinessOwnerEntityByBusinessId(anyLong());
+        when(mockBusinessOwnerRepository.existsBusinessOwnerEntityByBusinessId(anyLong())).thenReturn(true);
+        boolean result = subject.deleteBusinessOwnerById(1L);
+        verify(mockBusinessOwnerRepository).deleteBusinessOwnerEntityByBusinessId(1L);
+        assertTrue(result);
+    }
+
+    @Test
+    void givenNonExistentBusinessOwnerId_whenCalledToDeleteBusinessOwnerFromDb_thenReturnFalse() throws BusinessOwnerException {
+        doNothing().when(mockBusinessOwnerRepository).deleteBusinessOwnerEntityByBusinessId(anyLong());
+        when(mockBusinessOwnerRepository.existsBusinessOwnerEntityByBusinessId(anyLong())).thenReturn(false);
+        boolean result = subject.deleteBusinessOwnerById(5L);
+        verify(mockBusinessOwnerRepository, times(0))
+                .deleteBusinessOwnerEntityByBusinessId(5L);
+        assertFalse(result);
+    }
+
+    @Test
+    void givenSomeBusinessOwnerId_whenCalledToDeleteBusinessOwnerFromDbErrorOccurs_thenThrowBusinessOwnerException() {
+        when(mockBusinessOwnerRepository.existsBusinessOwnerEntityByBusinessId(anyLong())).thenReturn(true);
+        doThrow(new RuntimeException("someException")).when(mockBusinessOwnerRepository)
+                .deleteBusinessOwnerEntityByBusinessId(anyLong());
+        assertThrows(BusinessOwnerException.class, () -> subject.deleteBusinessOwnerById(1L));
+    }
+
+    @Test
+    void givenBusinessOwnerId_whenCalledToDeleteBusinessOwnerFromDbErrorOccurs_thenThrowBusinessOwnerException() {
+        when(mockBusinessOwnerRepository.existsBusinessOwnerEntityByBusinessId(anyLong()))
+                .thenThrow(new RuntimeException("someException"));
+        doNothing().when(mockBusinessOwnerRepository).deleteBusinessOwnerEntityByBusinessId(anyLong());
+        assertThrows(BusinessOwnerException.class, () -> subject.deleteBusinessOwnerById(1L));
+    }
 }
