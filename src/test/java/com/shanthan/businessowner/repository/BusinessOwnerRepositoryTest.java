@@ -59,6 +59,8 @@ class BusinessOwnerRepositoryTest {
         businessOwnerEntity.setFirstName("Johnson");
         subject.saveAndFlush(businessOwnerEntity);
         BusinessOwnerEntity updatedEntity = subject.getBusinessOwnerEntityByBusinessId(1L);
+        List<BusinessOwnerEntity> all = subject.findAll();
+        assertEquals(5, all.size());
         assertEquals("Johnson", updatedEntity.getFirstName());
 
     }
@@ -67,7 +69,7 @@ class BusinessOwnerRepositoryTest {
     void test_ForChecking_deleteBusinessOwnerEntityByBusinessId_FromDb() {
         BusinessOwnerEntity entity = subject.getBusinessOwnerEntityByBusinessId(2L);
         assertNotNull(entity);
-        subject.deleteBusinessOwnerEntityByBusinessId(2L);
+        subject.deleteById(2L);
         BusinessOwnerEntity businessOwnerEntity = subject.getBusinessOwnerEntityByBusinessId(2L);
         assertNull(businessOwnerEntity);
 

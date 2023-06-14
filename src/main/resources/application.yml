@@ -9,3 +9,8 @@ springdoc:
     path: /api-docs
   swagger-ui:
     path: /swagger-ui.html
+
+#Context-path
+server:
+  servlet:
+    context-path: /business-owner/service

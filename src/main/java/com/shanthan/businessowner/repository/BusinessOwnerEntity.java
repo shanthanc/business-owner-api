@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
@@ -12,6 +13,7 @@ import javax.validation.constraints.Pattern;
 @Entity
 @Table(name = "business_owner")
 @Data
+@DynamicUpdate
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder

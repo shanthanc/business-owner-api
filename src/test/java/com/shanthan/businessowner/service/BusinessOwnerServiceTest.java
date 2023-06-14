@@ -43,6 +43,7 @@ class BusinessOwnerServiceTest {
     private BusinessOwner testBusinessOwner2;
     private BusinessOwner testBusinessOwner3;
 
+    private BusinessOwner noIdBusinessOwner1;
     private List<BusinessOwnerEntity> testBusinessOwnerEntities;
 
     private List<BusinessOwner> testBusinessOwners;
@@ -80,6 +81,16 @@ class BusinessOwnerServiceTest {
                 .ssn(ENCYRPTED_SSN_3)
                 .phoneNumber(ENCRYPTED_PHONE_NUMBER_3)
                 .dateOfBirth(ENCRYPTED_DOB_3)
+                .build();
+
+
+        noIdBusinessOwner1 = BusinessOwner.builder()
+                .firstName(FIRST_NAME_1)
+                .lastName(LAST_NAME_1)
+                .address(ADDRESS_OBJECT_1)
+                .ssn(SOME_SSN_1)
+                .phoneNumber(SOME_PHONE_1)
+                .dateOfBirth(SOME_DOB_1)
                 .build();
 
         testBusinessOwner1 = BusinessOwner.builder()
@@ -125,13 +136,76 @@ class BusinessOwnerServiceTest {
     }
 
     @Test
+    void givenValidBusinessOwner_whenCalledToAddInDB_thenReturnAddedBusinessOwner() throws BusinessOwnerException {
+        when(mockMapperService.mapObjectToEntity(testBusinessOwner1)).thenReturn(testBusinessOwnerEntity1);
+        when(mockMapperService.mapEntityToObject(testBusinessOwnerEntity1)).thenReturn(testBusinessOwner1);
+        subject.addBusinessOwner(testBusinessOwner1);
+        verify(mockBusinessOwnerRepository).saveAndFlush(testBusinessOwnerEntity1);
+    }
+
+    @Test
+    void givenValidBusinessOwner_whenCalledToAddInDBErrorOccurs_thenThrowBusinessOwnerException()
+            throws BusinessOwnerException {
+        when(mockMapperService.mapObjectToEntity(testBusinessOwner1)).thenReturn(testBusinessOwnerEntity1);
+        when(mockMapperService.mapEntityToObject(testBusinessOwnerEntity1)).thenReturn(testBusinessOwner1);
+        when(mockBusinessOwnerRepository.saveAndFlush(testBusinessOwnerEntity1))
+                .thenThrow(new RuntimeException("someException"));
+        BusinessOwnerException exception = assertThrows(BusinessOwnerException.class, () ->
+                subject.addBusinessOwner(testBusinessOwner1));
+        assertEquals(INTERNAL_SERVER_ERROR, exception.getHttpStatus());
+    }
+
+    @Test
+    void givenExistingBusinessOwner_whenCalledToUpdateInDB_thenReturnAddedBusinessOwner()
+            throws BusinessOwnerException {
+        when(mockBusinessOwnerRepository.existsBusinessOwnerEntityByBusinessId(anyLong())).thenReturn(true);
+        when(mockBusinessOwnerRepository.getBusinessOwnerEntityByBusinessId(anyLong()))
+                .thenReturn(testBusinessOwnerEntity1);
+        when(mockMapperService.mapObjectToEntity(testBusinessOwner1)).thenReturn(testBusinessOwnerEntity1);
+        when(mockBusinessOwnerRepository.saveAndFlush(testBusinessOwnerEntity1)).thenReturn(testBusinessOwnerEntity1);
+        subject.updateBusinessOwner(testBusinessOwner1);
+
+        verify(mockMapperService).mapEntityToObject(testBusinessOwnerEntity1);
+    }
+
+    @Test
+    void givenNonExistentBusinessOwner_whenCalledToUpdateInDB_thenReturnAddedBusinessOwner()
+            throws BusinessOwnerException {
+        when(mockBusinessOwnerRepository.existsBusinessOwnerEntityByBusinessId(anyLong())).thenReturn(false);
+        BusinessOwner businessOwner = subject.updateBusinessOwner(testBusinessOwner1);
+        assertNotNull(businessOwner);
+        assertNull(businessOwner.getBusinessId());
+    }
+
+    @Test
+    void givenBusinessOwner_whenCalledToUpdateInDBErrorOccurs_thenThrowBusinessOwnerException()
+            throws BusinessOwnerException {
+        when(mockBusinessOwnerRepository.existsBusinessOwnerEntityByBusinessId(anyLong())).thenReturn(true);
+        when(mockBusinessOwnerRepository.getBusinessOwnerEntityByBusinessId(anyLong()))
+                .thenReturn(testBusinessOwnerEntity1);
+        when(mockMapperService.mapObjectToEntity(testBusinessOwner1)).thenReturn(testBusinessOwnerEntity1);
+        when(mockBusinessOwnerRepository.saveAndFlush(testBusinessOwnerEntity1))
+                .thenThrow(new RuntimeException("someException"));
+        BusinessOwnerException exception = assertThrows(BusinessOwnerException.class, () ->
+                subject.updateBusinessOwner(testBusinessOwner1));
+        assertEquals(INTERNAL_SERVER_ERROR, exception.getHttpStatus());
+    }
+
+    @Test
+    void givenBusinessOwnerWithNoId_whenCalledToUpdateInDB_thenThrowExceptionWithHttpStatusBadRequest() {
+        BusinessOwnerException exception = assertThrows(BusinessOwnerException.class, () ->
+                subject.updateBusinessOwner(noIdBusinessOwner1));
+        assertEquals(BAD_REQUEST, exception.getHttpStatus());
+    }
+
+    @Test
     void givenBusinessId_getBusinessOwnerByBusinessIdFromDbCalled_returnBusinesOwnerEntity()
             throws BusinessOwnerException {
         when(mockBusinessOwnerRepository.getBusinessOwnerEntityByBusinessId(anyLong()))
                 .thenReturn(testBusinessOwnerEntity1);
         when(mockMapperService.mapEntityToObject(any(BusinessOwnerEntity.class)))
                 .thenReturn(testBusinessOwner1);
-        BusinessOwner result = subject.getBusinessOwnerByBusinessIdFromDb(1L);
+        BusinessOwner result = subject.getBusinessOwnerByBusinessId(1L);
 
         assertNotNull(result);
         assertEquals(1L, result.getBusinessId());
@@ -148,7 +222,7 @@ class BusinessOwnerServiceTest {
 
 
         BusinessOwnerException ex =
-                assertThrows(BusinessOwnerException.class, () -> subject.getBusinessOwnerByBusinessIdFromDb(1L));
+                assertThrows(BusinessOwnerException.class, () -> subject.getBusinessOwnerByBusinessId(1L));
 
         assertEquals(INTERNAL_SERVER_ERROR, ex.getHttpStatus());
     }
@@ -249,20 +323,20 @@ class BusinessOwnerServiceTest {
 
     @Test
     void givenValidBusinessOwnerId_whenCalledToDeleteBusinessOwnerFromDb_thenReturnTrue() throws BusinessOwnerException {
-        doNothing().when(mockBusinessOwnerRepository).deleteBusinessOwnerEntityByBusinessId(anyLong());
+        doNothing().when(mockBusinessOwnerRepository).deleteById(anyLong());
         when(mockBusinessOwnerRepository.existsBusinessOwnerEntityByBusinessId(anyLong())).thenReturn(true);
         boolean result = subject.deleteBusinessOwnerById(1L);
-        verify(mockBusinessOwnerRepository).deleteBusinessOwnerEntityByBusinessId(1L);
+        verify(mockBusinessOwnerRepository).deleteById(1L);
         assertTrue(result);
     }
 
     @Test
     void givenNonExistentBusinessOwnerId_whenCalledToDeleteBusinessOwnerFromDb_thenReturnFalse() throws BusinessOwnerException {
-        doNothing().when(mockBusinessOwnerRepository).deleteBusinessOwnerEntityByBusinessId(anyLong());
+        doNothing().when(mockBusinessOwnerRepository).deleteById(anyLong());
         when(mockBusinessOwnerRepository.existsBusinessOwnerEntityByBusinessId(anyLong())).thenReturn(false);
         boolean result = subject.deleteBusinessOwnerById(5L);
         verify(mockBusinessOwnerRepository, times(0))
-                .deleteBusinessOwnerEntityByBusinessId(5L);
+                .deleteById(5L);
         assertFalse(result);
     }
 
@@ -270,7 +344,7 @@ class BusinessOwnerServiceTest {
     void givenSomeBusinessOwnerId_whenCalledToDeleteBusinessOwnerFromDbErrorOccurs_thenThrowBusinessOwnerException() {
         when(mockBusinessOwnerRepository.existsBusinessOwnerEntityByBusinessId(anyLong())).thenReturn(true);
         doThrow(new RuntimeException("someException")).when(mockBusinessOwnerRepository)
-                .deleteBusinessOwnerEntityByBusinessId(anyLong());
+                .deleteById(anyLong());
         assertThrows(BusinessOwnerException.class, () -> subject.deleteBusinessOwnerById(1L));
     }
 
@@ -278,7 +352,7 @@ class BusinessOwnerServiceTest {
     void givenBusinessOwnerId_whenCalledToDeleteBusinessOwnerFromDbErrorOccurs_thenThrowBusinessOwnerException() {
         when(mockBusinessOwnerRepository.existsBusinessOwnerEntityByBusinessId(anyLong()))
                 .thenThrow(new RuntimeException("someException"));
-        doNothing().when(mockBusinessOwnerRepository).deleteBusinessOwnerEntityByBusinessId(anyLong());
+        doNothing().when(mockBusinessOwnerRepository).deleteById(anyLong());
         assertThrows(BusinessOwnerException.class, () -> subject.deleteBusinessOwnerById(1L));
     }
 }
