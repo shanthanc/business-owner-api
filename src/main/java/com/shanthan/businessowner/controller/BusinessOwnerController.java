@@ -20,7 +20,7 @@ import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.ResponseEntity.ok;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
-@RequestMapping("/")
+@RequestMapping("/api")
 @RestController
 @Slf4j
 public class BusinessOwnerController {
@@ -42,7 +42,7 @@ public class BusinessOwnerController {
             @ApiResponse(responseCode = "404", description = "Resource Not Found", content = @Content),
             @ApiResponse(responseCode = "500", description = "Unexpected Internal Error", content = @Content)
     })
-    @PostMapping(value = "addBusinessOwner/businessOwner")
+    @PostMapping(value = "v1/addBusinessOwner/businessOwner")
     public ResponseEntity addBusinessOwner(@RequestBody BusinessOwner businessOwner) throws BusinessOwnerException {
 //
         log.info("Calling BusinessOwner Service to addBusinessOwner -> [{}] to Db ", businessOwner);
@@ -67,7 +67,7 @@ public class BusinessOwnerController {
             @ApiResponse(responseCode = "404", description = "Resource Not Found", content = @Content),
             @ApiResponse(responseCode = "500", description = "Unexpected Internal Error", content = @Content)
     })
-    @PutMapping(value = "updateBusinessOwner/businessOwner")
+    @PutMapping(value = "v1/updateBusinessOwner/businessOwner")
     public ResponseEntity updateBusinessOwner(@RequestBody BusinessOwner businessOwner) throws BusinessOwnerException {
         log.info("Calling BusinessOwner Service to updateBusinessOwner with id -> {} ", businessOwner.getBusinessId());
         BusinessOwner result = businessOwnerService.updateBusinessOwner(businessOwner);
@@ -97,7 +97,7 @@ public class BusinessOwnerController {
             @ApiResponse(responseCode = "404", description = "Resource Not Found", content = @Content),
             @ApiResponse(responseCode = "500", description = "Unexpected Internal Error", content = @Content)
     })
-    @GetMapping(value = "getBusinessOwner/businessId/{businessId}")
+    @GetMapping(value = "v1/getBusinessOwner/businessId/{businessId}")
     public ResponseEntity getBusinessOwnerWithId(@PathVariable Long businessId) throws BusinessOwnerException {
         if (!businessOwnerService.doesBusinessOwnerWithIdExist(businessId)) {
             return ResponseEntity.status(NO_CONTENT).body(DefaultResponse.builder()
@@ -121,7 +121,7 @@ public class BusinessOwnerController {
             @ApiResponse(responseCode = "404", description = "Resource Not Found", content = @Content),
             @ApiResponse(responseCode = "500", description = "Unexpected Internal Error", content = @Content)
     })
-    @GetMapping(value = "getBusinessOwners/firstName/{firstName}")
+    @GetMapping(value = "v1/getBusinessOwners/firstName/{firstName}")
     public ResponseEntity getBusinessOwnersWithFirstName(@PathVariable String firstName) throws BusinessOwnerException {
         List<BusinessOwner> businessOwners = businessOwnerService.getBusinessOwnerListByFirstName(firstName);
         if (businessOwners.isEmpty()) {
@@ -146,7 +146,7 @@ public class BusinessOwnerController {
             @ApiResponse(responseCode = "404", description = "Resource Not Found", content = @Content),
             @ApiResponse(responseCode = "500", description = "Unexpected Internal Error", content = @Content)
     })
-    @GetMapping(value = "getBusinessOwners/lastName/{lastName}")
+    @GetMapping(value = "v1/getBusinessOwners/lastName/{lastName}")
     public ResponseEntity getBusinessOwnersWithLastName(@PathVariable String lastName) throws BusinessOwnerException {
         List<BusinessOwner> businessOwners = businessOwnerService.getBusinessOwnerListByLastName(lastName);
         if (businessOwners.isEmpty()) {
@@ -171,7 +171,7 @@ public class BusinessOwnerController {
             @ApiResponse(responseCode = "404", description = "Resource Not Found", content = @Content),
             @ApiResponse(responseCode = "500", description = "Unexpected Internal Error", content = @Content)
     })
-    @DeleteMapping(value = "deleteBusinessOwner/businessId/{businessId}")
+    @DeleteMapping(value = "v1/deleteBusinessOwner/businessId/{businessId}")
     public ResponseEntity deleteBusinessOwner(@PathVariable Long businessId) throws BusinessOwnerException {
         boolean isDeleted = businessOwnerService.deleteBusinessOwnerById(businessId);
         if (isDeleted) {

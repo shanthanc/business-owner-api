@@ -1,14 +1,12 @@
 package com.shanthan.businessowner.repository;
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
-
-import javax.persistence.*;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Pattern;
 
 @Entity
 @Table(name = "business_owner")
@@ -26,13 +24,11 @@ public class BusinessOwnerEntity {
 
     @NotEmpty
     @Column(name = "first_name")
-    @Pattern(regexp = "^[a-zA-Z\\\\s]*$")
     private String firstName;
 
 
     @NotEmpty
     @Column(name = "last_name")
-    @Pattern(regexp = "^[a-zA-Z\\\\s]*$")
     private String lastName;
 
     @NotEmpty

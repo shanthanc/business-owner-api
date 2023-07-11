@@ -14,6 +14,8 @@ public class TestConstants {
 
     public static final String FIRST_NAME_1 = "someFirstName1";
 
+    public static final String UPDATED_FIRST_NAME_1 = "someUpdatedFirstName1";
+
     public static final String FIRST_NAME_2 = "someFirstName1";
 
     public static final String FIRST_NAME_3 = "someFirstName2";
@@ -125,5 +127,34 @@ public class TestConstants {
     public static final String ENCRYPTED_DOB_2 = "someEncryptedDob2";
 
     public static final String ENCRYPTED_DOB_3 = "someEncryptedDob3";
+
+    public static final String STATUS_MESSAGE_ATTRIBUTE = "statusMessage";
+
+    public static final String ADDRESS_ATTRIBUTE = "address";
+
+    public static final String BUSINESS_OWNER_ATTRIBUTE = "businessOwner";
+
+    public static final String IS_UPDATE_ATTRIBUTE = "isUpdate";
+    public static final String HOME_INDEX_STATUS_MESSAGE = "Hi Admin, Welcome!";
+
+    public static final String HOME_PAGE = "index";
+
+    public static final String CREATE_UPDATE_PAGE = "create-update-business-owner";
+
+    public static final String CONTEXT_PATH_WEB = "/business-owner/service/web";
+
+    public static final String SUCCESS_MESSAGE_ATTRIBUTE = "successMessage";
+
+    public static final String ERROR_MESSAGE_ATTRIBUTE = "errorMessage";
+
+    public static final String DELETION_SUCCESS = "Deletion of business owner with id -> 1 successful. ";
+
+    public static final String DELETION_FAILED = "Business owner with id -> 1 requested to delete does not exist. ";
+
+
+    public static final String SUCCESS_PAGE = "success";
+
+    public static final String ERROR_PAGE = "error";
+
 
 }

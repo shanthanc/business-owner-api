@@ -1,5 +1,10 @@
-#Flyway
+
 spring:
+  #freemarker
+  freemarker:
+    template-loader-path: classpath:/templates
+    suffix: .ftlh
+  #Flyway
   flyway:
     enabled: true
     locations: classpath:db/migration
@@ -14,3 +19,10 @@ springdoc:
 server:
   servlet:
     context-path: /business-owner/service
+
+  port: 8083
+
+  error:
+    path: /business-owner/service/error
+    whitelabel:
+      enabled: false

@@ -1,6 +1,7 @@
 package com.shanthan.businessowner.service;
 
 import com.shanthan.businessowner.exception.BusinessOwnerException;
+import com.shanthan.businessowner.model.Address;
 import com.shanthan.businessowner.model.BusinessOwner;
 import com.shanthan.businessowner.repository.BusinessOwnerEntity;
 import com.shanthan.businessowner.repository.BusinessOwnerRepository;
@@ -8,12 +9,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static java.time.LocalDate.*;
+import static java.util.Optional.*;
+import static org.springframework.http.HttpStatus.*;
+import static org.springframework.util.ObjectUtils.*;
 
 @Service
 @Slf4j
@@ -31,6 +36,8 @@ public class BusinessOwnerService {
 
     public BusinessOwner addBusinessOwner(BusinessOwner businessOwner) throws BusinessOwnerException {
         try {
+            businessOwner.setPhoneNumber(formatPhoneNumber(businessOwner.getPhoneNumber()));
+            businessOwner.setSsn(formatSsn(businessOwner.getSsn()));
             BusinessOwnerEntity businessOwnerEntity = mapperService.mapObjectToEntity(businessOwner);
             businessOwnerEntity = businessOwnerRepository.saveAndFlush(businessOwnerEntity);
             return mapperService.mapEntityToObject(businessOwnerEntity);
@@ -40,35 +47,70 @@ public class BusinessOwnerService {
         }
     }
 
+    private String formatPhoneNumber(String phoneNumber) {
+        log.info("Formatting phoneNumber to format -> (###) ###-####");
+        return phoneNumber.replaceFirst("(\\d{3})(\\d{3})(\\d{4})", "($1) $2-$3");
+    }
+
+    private String formatSsn(String ssn) {
+        log.info("Formatting ssn to format -> ###-##-###");
+        return ssn.replaceFirst("(\\d{3})(\\d{2})(\\d{4})", "$1-$2-$3");
+    }
+
     public BusinessOwner updateBusinessOwner(BusinessOwner businessOwner) throws BusinessOwnerException {
-        if (ObjectUtils.isEmpty(businessOwner.getBusinessId())) {
+        if (isEmpty(businessOwner.getBusinessId())) {
             log.error("Need business owner Id to update business owner ");
             throw new BusinessOwnerException(BAD_REQUEST, "Need business owner Id to update business owner. ");
         }
+        BusinessOwnerEntity existingEntity;
+
         try {
+            existingEntity =
+                    businessOwnerRepository.getBusinessOwnerEntityByBusinessId(businessOwner.getBusinessId());
+            log.info("Existing business owner -> [{}] ", existingEntity);
+
+            String decryptedSsn = mapperService.decryptField(existingEntity.getSsn());
+            String decryptedPhoneNumber = mapperService.decryptField(existingEntity.getPhoneNumber());
+            String decryptedDobString = mapperService.decryptField(existingEntity.getDateOfBirth());
+            Address address = mapperService.mapAddressStringToObject(existingEntity.getAddress());
+
             BusinessOwner updatedBusinessOwner = BusinessOwner.builder()
                     .businessId(businessOwner.getBusinessId())
-                    .firstName(businessOwner.getFirstName())
-                    .lastName(businessOwner.getLastName())
-                    .ssn(businessOwner.getSsn())
-                    .phoneNumber(businessOwner.getPhoneNumber())
-                    .dateOfBirth(businessOwner.getDateOfBirth())
-                    .address(businessOwner.getAddress())
+                    .firstName(substituteIfEmpty(businessOwner.getFirstName(), existingEntity.getFirstName()))
+                    .lastName(substituteIfEmpty(businessOwner.getLastName(), existingEntity.getLastName()))
+                    .ssn(substituteIfEmpty(businessOwner.getSsn(), decryptedSsn))
+                    .phoneNumber(substituteIfEmpty(businessOwner.getPhoneNumber(), decryptedPhoneNumber))
+                    .dateOfBirth(substituteDateIfEmpty(businessOwner.getDateOfBirth(), parse(decryptedDobString)))
+                    .address(substituteAddressIfEmpty(businessOwner.getAddress(), address))
                     .build();
+
             if (!doesBusinessOwnerWithIdExist(businessOwner.getBusinessId())) {
                 log.info("Business owner with businessId -> {} does not exist", businessOwner.getBusinessId());
                 return BusinessOwner.builder().build();
             }
-            BusinessOwnerEntity existingBusinessOwnerEntity =
-                    businessOwnerRepository.getBusinessOwnerEntityByBusinessId(businessOwner.getBusinessId());
+
             BusinessOwnerEntity updatedEntity = mapperService.mapObjectToEntity(updatedBusinessOwner);
-            updatedEntity.setBusinessId(existingBusinessOwnerEntity.getBusinessId());
+            updatedEntity.setBusinessId(existingEntity.getBusinessId());
             updatedEntity = businessOwnerRepository.saveAndFlush(updatedEntity);
             return mapperService.mapEntityToObject(updatedEntity);
+
         } catch (Exception ex) {
-            log.error("Error while adding Business Owner [{}] ", businessOwner);
+            log.error("Error while updating Business Owner [{}] ", businessOwner);
             throw new BusinessOwnerException(INTERNAL_SERVER_ERROR, ex.getMessage(), ex);
         }
+    }
+
+    private String substituteIfEmpty(String field, String substitute) {
+        return field.isBlank() ? substitute : field;
+    }
+
+    private LocalDate substituteDateIfEmpty(LocalDate field, LocalDate substitute) {
+        return isEmpty(field) ? substitute : field;
+    }
+
+    private Address substituteAddressIfEmpty(Address field, Address substitute) {
+
+        return (field.getCity().isBlank()) ? substitute : field;
     }
 
     public BusinessOwner getBusinessOwnerByBusinessId(Long businessId) throws BusinessOwnerException {
@@ -96,7 +138,7 @@ public class BusinessOwnerService {
             List<BusinessOwnerEntity> entityList =
                     businessOwnerRepository.getBusinessOwnerEntitiesByFirstNameOrderByFirstName(firstName);
 
-            if (ObjectUtils.isEmpty(entityList) || entityList.isEmpty()) {
+            if (isEmpty(entityList) || entityList.isEmpty()) {
                 return Collections.emptyList();
             }
 
@@ -121,7 +163,7 @@ public class BusinessOwnerService {
             List<BusinessOwnerEntity> entityList =
                     businessOwnerRepository.getBusinessOwnerEntitiesByLastNameOrderByLastName(lastName);
 
-            if (ObjectUtils.isEmpty(entityList) || entityList.isEmpty()) {
+            if (isEmpty(entityList) || entityList.isEmpty()) {
                 return Collections.emptyList();
             }
 
