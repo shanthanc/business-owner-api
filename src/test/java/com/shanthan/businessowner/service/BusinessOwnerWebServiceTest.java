@@ -4,12 +4,17 @@ import com.shanthan.businessowner.exception.BusinessOwnerException;
 import com.shanthan.businessowner.model.BusinessOwner;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.http.HttpStatus;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.shanthan.businessowner.testutils.TestConstants.*;
 import static com.shanthan.businessowner.testutils.TestConstants.SOME_DOB_1;
@@ -35,6 +40,12 @@ class BusinessOwnerWebServiceTest {
     private BusinessOwner testBusinessOwner1;
 
     private BusinessOwner webTestBusinessOwner1;
+
+    private BusinessOwner webTestBusinessOwner2;
+
+    private BusinessOwner webTestBusinessOwner3;
+
+    private List<BusinessOwner> webTestBusinessOwners;
 
     private BusinessOwner updatedWebTestBusinessOwner1;
 
@@ -64,6 +75,28 @@ class BusinessOwnerWebServiceTest {
                 .dob(SOME_DOB_1.toString())
                 .build();
 
+        webTestBusinessOwner2 = BusinessOwner.builder()
+                .businessId(2L)
+                .firstName(FIRST_NAME_2)
+                .lastName(LAST_NAME_2)
+                .address(ADDRESS_OBJECT_2)
+                .ssn(SOME_SSN_2)
+                .phoneNumber(SOME_PHONE_2)
+                .dob(SOME_DOB_2.toString())
+                .build();
+
+        webTestBusinessOwner3 = BusinessOwner.builder()
+                .businessId(3L)
+                .firstName(FIRST_NAME_3)
+                .lastName(LAST_NAME_3)
+                .address(ADDRESS_OBJECT_3)
+                .ssn(SOME_SSN_3)
+                .phoneNumber(SOME_PHONE_3)
+                .dob(SOME_DOB_3.toString())
+                .build();
+
+
+
         errorWebTestBusinessOwner = BusinessOwner.builder()
                 .businessId(1L)
                 .firstName(FIRST_NAME_1)
@@ -83,6 +116,11 @@ class BusinessOwnerWebServiceTest {
                 .phoneNumber(SOME_PHONE_1)
                 .dob(SOME_DOB_1.toString())
                 .build();
+
+        webTestBusinessOwners = new ArrayList<>();
+        webTestBusinessOwners.add(webTestBusinessOwner1);
+        webTestBusinessOwners.add(webTestBusinessOwner2);
+        webTestBusinessOwners.add(webTestBusinessOwner3);
     }
 
     @Test
@@ -235,6 +273,108 @@ class BusinessOwnerWebServiceTest {
 
         BusinessOwnerException exception = assertThrows(BusinessOwnerException.class, () ->
                 subject.deleteBusinessOwner(1L));
+
+        assertEquals(INTERNAL_SERVER_ERROR, exception.getHttpStatus());
+    }
+
+    @Test
+    void givenExistingFirstName_whenRequestedForBusinessOwnersWithIt_thenReturnTheList()
+            throws BusinessOwnerException {
+
+        List<BusinessOwner> firstNameList = webTestBusinessOwners.stream()
+                .filter(bo -> bo.getFirstName().equals(FIRST_NAME_1))
+                .toList();
+        when(mockBusinessOwnerService.getBusinessOwnerListByFirstName(anyString()))
+                .thenReturn(firstNameList);
+        List<BusinessOwner> result = subject.businessOwnerListByFirstName(FIRST_NAME_1);
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals(FIRST_NAME_1, result.get(0).getFirstName());
+        assertEquals(FIRST_NAME_1, result.get(1).getFirstName());
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {"", " "})
+    void givenEmptyFirstName_whenRequestedForBusinessOwnersWithIt_thenThrowAppExceptionWith400Status(String fName) {
+        BusinessOwnerException exception = assertThrows(BusinessOwnerException.class, () ->
+                subject.businessOwnerListByFirstName(fName));
+
+        assertEquals(BAD_REQUEST, exception.getHttpStatus());
+    }
+
+    @Test
+    void givenFirstName_whenBusinessOwnerListWithItRequestedErrorOccurs_thenThrowNewAppExceptionWithStatus()
+            throws BusinessOwnerException {
+        when(mockBusinessOwnerService.getBusinessOwnerListByFirstName(anyString()))
+                .thenThrow(new BusinessOwnerException(NOT_FOUND, "someException"));
+
+        BusinessOwnerException exception = assertThrows(BusinessOwnerException.class, () ->
+                subject.businessOwnerListByFirstName(FIRST_NAME_1));
+
+        assertEquals(NOT_FOUND, exception.getHttpStatus());
+    }
+
+    @Test
+    void givenFirstName_whenBusinessOwnerListWithItRequestedErrorOccurs_thenThrowNewExceptionWith500Status()
+            throws BusinessOwnerException {
+        when(mockBusinessOwnerService.getBusinessOwnerListByFirstName(anyString()))
+                .thenThrow(new RuntimeException("someException"));
+
+        BusinessOwnerException exception = assertThrows(BusinessOwnerException.class, () ->
+                subject.businessOwnerListByFirstName(FIRST_NAME_1));
+
+        assertEquals(INTERNAL_SERVER_ERROR, exception.getHttpStatus());
+    }
+
+    @Test
+    void givenExistingLastName_whenRequestedForBusinessOwnersWithIt_thenReturnTheList()
+            throws BusinessOwnerException {
+
+        List<BusinessOwner> lastNameList = webTestBusinessOwners.stream()
+                .filter(bo -> bo.getLastName().equals(LAST_NAME_2))
+                .toList();
+        when(mockBusinessOwnerService.getBusinessOwnerListByLastName(anyString()))
+                .thenReturn(lastNameList);
+        List<BusinessOwner> result = subject.businessOwnerListByLastName(LAST_NAME_2);
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals(LAST_NAME_2, result.get(0).getLastName());
+        assertEquals(LAST_NAME_2, result.get(1).getLastName());
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {"", " "})
+    void givenEmptyLastName_whenRequestedForBusinessOwnersWithIt_thenThrowAppExceptionWith400Status(String lName) {
+        BusinessOwnerException exception = assertThrows(BusinessOwnerException.class, () ->
+                subject.businessOwnerListByLastName(lName));
+
+        assertEquals(BAD_REQUEST, exception.getHttpStatus());
+    }
+
+    @Test
+    void givenLastName_whenBusinessOwnerListWithItRequestedErrorOccurs_thenThrowNewAppExceptionWithStatus()
+            throws BusinessOwnerException {
+        when(mockBusinessOwnerService.getBusinessOwnerListByLastName(anyString()))
+                .thenThrow(new BusinessOwnerException(NOT_FOUND, "someException"));
+
+        BusinessOwnerException exception = assertThrows(BusinessOwnerException.class, () ->
+                subject.businessOwnerListByLastName(LAST_NAME_1));
+
+        assertEquals(NOT_FOUND, exception.getHttpStatus());
+    }
+
+    @Test
+    void givenLastName_whenBusinessOwnerListWithItRequestedErrorOccurs_thenThrowNewExceptionWith500Status()
+            throws BusinessOwnerException {
+        when(mockBusinessOwnerService.getBusinessOwnerListByLastName(anyString()))
+                .thenThrow(new RuntimeException("someException"));
+
+        BusinessOwnerException exception = assertThrows(BusinessOwnerException.class, () ->
+                subject.businessOwnerListByLastName(LAST_NAME_1));
 
         assertEquals(INTERNAL_SERVER_ERROR, exception.getHttpStatus());
     }

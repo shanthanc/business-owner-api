@@ -32,7 +32,7 @@ public class BusinessOwnerWebController {
     }
 
     @GetMapping
-    private String error(Model model) {
+    public String error(Model model) {
         return ERROR_PAGE;
     }
 
@@ -119,7 +119,7 @@ public class BusinessOwnerWebController {
         } else {
             model.addAttribute(ERROR_MESSAGE_ATTRIBUTE,
                     "Business owner with id -> " + businessId + " requested to delete does not " +
-                            "exist.");
+                            "exist. ");
             return ERROR_PAGE;
         }
     }

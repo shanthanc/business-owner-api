@@ -4,6 +4,7 @@ import com.shanthan.businessowner.exception.BusinessOwnerException;
 import com.shanthan.businessowner.model.State;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -13,6 +14,7 @@ import java.util.List;
 import static java.time.LocalDate.*;
 import static java.util.stream.Stream.of;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.util.ObjectUtils.*;
 
 @Component
 @Slf4j
@@ -35,7 +37,7 @@ public class ValidationService {
     public LocalDate validDateOfBirth(String dob) throws BusinessOwnerException {
         LocalDate dateOfBirth;
         log.info("Validating date of birth -> {} ", dob);
-        if (!dob.isBlank()) {
+        if (!isEmpty(dob) && !dob.isBlank()) {
             dateOfBirth = parse(dob, DateTimeFormatter.ISO_LOCAL_DATE);
             if (dateOfBirth.isAfter(now())) {
                 log.error("Invalid Date of Birth! ");

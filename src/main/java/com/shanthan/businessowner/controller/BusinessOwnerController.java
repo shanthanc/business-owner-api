@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.NO_CONTENT;
+import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.ResponseEntity.*;
 import static org.springframework.http.ResponseEntity.ok;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
@@ -44,11 +44,10 @@ public class BusinessOwnerController {
     })
     @PostMapping(value = "v1/addBusinessOwner/businessOwner")
     public ResponseEntity addBusinessOwner(@RequestBody BusinessOwner businessOwner) throws BusinessOwnerException {
-//
         log.info("Calling BusinessOwner Service to addBusinessOwner -> [{}] to Db ", businessOwner);
         BusinessOwner responseBody = businessOwnerService.addBusinessOwner(businessOwner);
         String idField = responseBody.getBusinessId().toString();
-        return ResponseEntity.status(CREATED).body(DefaultResponse.builder()
+        return status(CREATED).body(DefaultResponse.builder()
                 .field(idField)
                 .message("Business Owner with businessId created -> " + idField + " added successfully. ")
                 .build());
@@ -72,13 +71,13 @@ public class BusinessOwnerController {
         log.info("Calling BusinessOwner Service to updateBusinessOwner with id -> {} ", businessOwner.getBusinessId());
         BusinessOwner result = businessOwnerService.updateBusinessOwner(businessOwner);
         if (isEmpty(result.getBusinessId())) {
-            return ResponseEntity.status(NO_CONTENT)
+            return status(NO_CONTENT)
                     .body(DefaultResponse.builder()
                             .field(businessOwner.getBusinessId().toString())
                             .message("Business owner with id -> " + businessOwner.getBusinessId() + " does not exist ")
                             .build());
         }
-        return ResponseEntity.ok(DefaultResponse.builder()
+        return ok(DefaultResponse.builder()
                 .field(businessOwner.getBusinessId().toString())
                 .message("Business Owner with above id updated successfully")
                 .build());
@@ -100,7 +99,7 @@ public class BusinessOwnerController {
     @GetMapping(value = "v1/getBusinessOwner/businessId/{businessId}")
     public ResponseEntity getBusinessOwnerWithId(@PathVariable Long businessId) throws BusinessOwnerException {
         if (!businessOwnerService.doesBusinessOwnerWithIdExist(businessId)) {
-            return ResponseEntity.status(NO_CONTENT).body(DefaultResponse.builder()
+            return status(NO_CONTENT).body(DefaultResponse.builder()
                     .field(businessId.toString())
                     .message("Given Business Owner does not exist. ")
                     .build());
@@ -125,7 +124,7 @@ public class BusinessOwnerController {
     public ResponseEntity getBusinessOwnersWithFirstName(@PathVariable String firstName) throws BusinessOwnerException {
         List<BusinessOwner> businessOwners = businessOwnerService.getBusinessOwnerListByFirstName(firstName);
         if (businessOwners.isEmpty()) {
-            return ResponseEntity.status(NO_CONTENT).body(DefaultResponse.builder()
+            return status(NO_CONTENT).body(DefaultResponse.builder()
                     .field(firstName)
                     .message("No business owners exist with first name " + firstName)
                     .build());
@@ -150,7 +149,7 @@ public class BusinessOwnerController {
     public ResponseEntity getBusinessOwnersWithLastName(@PathVariable String lastName) throws BusinessOwnerException {
         List<BusinessOwner> businessOwners = businessOwnerService.getBusinessOwnerListByLastName(lastName);
         if (businessOwners.isEmpty()) {
-            return ResponseEntity.status(NO_CONTENT).body(DefaultResponse.builder()
+            return status(NO_CONTENT).body(DefaultResponse.builder()
                     .field(lastName)
                     .message("No business owners exist with last name " + lastName)
                     .build());
@@ -175,12 +174,12 @@ public class BusinessOwnerController {
     public ResponseEntity deleteBusinessOwner(@PathVariable Long businessId) throws BusinessOwnerException {
         boolean isDeleted = businessOwnerService.deleteBusinessOwnerById(businessId);
         if (isDeleted) {
-            return ResponseEntity.ok(DefaultResponse.builder()
+            return ok(DefaultResponse.builder()
                     .field(businessId.toString())
                     .message("Business Owner with above id successfully deleted from Db ")
                     .build());
         } else {
-            return ResponseEntity.accepted().body(DefaultResponse.builder()
+            return accepted().body(DefaultResponse.builder()
                     .field(businessId.toString())
                     .message("Business Owner with above Id does not exist ")
                     .build());

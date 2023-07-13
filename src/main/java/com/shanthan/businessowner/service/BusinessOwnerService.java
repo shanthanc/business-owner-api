@@ -65,6 +65,10 @@ public class BusinessOwnerService {
         BusinessOwnerEntity existingEntity;
 
         try {
+            if (!doesBusinessOwnerWithIdExist(businessOwner.getBusinessId())) {
+                log.info("Business owner with businessId -> {} does not exist", businessOwner.getBusinessId());
+                return BusinessOwner.builder().build();
+            }
             existingEntity =
                     businessOwnerRepository.getBusinessOwnerEntityByBusinessId(businessOwner.getBusinessId());
             log.info("Existing business owner -> [{}] ", existingEntity);
@@ -84,10 +88,7 @@ public class BusinessOwnerService {
                     .address(substituteAddressIfEmpty(businessOwner.getAddress(), address))
                     .build();
 
-            if (!doesBusinessOwnerWithIdExist(businessOwner.getBusinessId())) {
-                log.info("Business owner with businessId -> {} does not exist", businessOwner.getBusinessId());
-                return BusinessOwner.builder().build();
-            }
+
 
             BusinessOwnerEntity updatedEntity = mapperService.mapObjectToEntity(updatedBusinessOwner);
             updatedEntity.setBusinessId(existingEntity.getBusinessId());
@@ -163,7 +164,7 @@ public class BusinessOwnerService {
             List<BusinessOwnerEntity> entityList =
                     businessOwnerRepository.getBusinessOwnerEntitiesByLastNameOrderByLastName(lastName);
 
-            if (isEmpty(entityList) || entityList.isEmpty()) {
+            if (isEmpty(entityList)) {
                 return Collections.emptyList();
             }
 

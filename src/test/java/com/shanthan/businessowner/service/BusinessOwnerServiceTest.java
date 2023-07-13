@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,6 +48,7 @@ class BusinessOwnerServiceTest {
     private List<BusinessOwnerEntity> testBusinessOwnerEntities;
 
     private List<BusinessOwner> testBusinessOwners;
+
 
     @BeforeEach
     void setUp() {
@@ -133,6 +135,7 @@ class BusinessOwnerServiceTest {
         testBusinessOwners.add(testBusinessOwner1);
         testBusinessOwners.add(testBusinessOwner2);
         testBusinessOwners.add(testBusinessOwner3);
+
     }
 
     @Test
@@ -158,9 +161,12 @@ class BusinessOwnerServiceTest {
     @Test
     void givenExistingBusinessOwner_whenCalledToUpdateInDB_thenReturnAddedBusinessOwner()
             throws BusinessOwnerException {
-        when(mockBusinessOwnerRepository.existsBusinessOwnerEntityByBusinessId(anyLong())).thenReturn(true);
         when(mockBusinessOwnerRepository.getBusinessOwnerEntityByBusinessId(anyLong()))
                 .thenReturn(testBusinessOwnerEntity1);
+        when(mockMapperService.decryptField(testBusinessOwnerEntity1.getSsn())).thenReturn(SOME_SSN_1);
+        when(mockMapperService.decryptField(testBusinessOwnerEntity1.getPhoneNumber())).thenReturn(SOME_PHONE_1);
+        when(mockMapperService.decryptField(testBusinessOwnerEntity1.getDateOfBirth())).thenReturn(SOME_DOB_STRING_1);
+        when(mockBusinessOwnerRepository.existsBusinessOwnerEntityByBusinessId(anyLong())).thenReturn(true);
         when(mockMapperService.mapObjectToEntity(testBusinessOwner1)).thenReturn(testBusinessOwnerEntity1);
         when(mockBusinessOwnerRepository.saveAndFlush(testBusinessOwnerEntity1)).thenReturn(testBusinessOwnerEntity1);
         subject.updateBusinessOwner(testBusinessOwner1);
@@ -278,18 +284,13 @@ class BusinessOwnerServiceTest {
     void givenLastName_whenCalledToRetrieveListOfBusinessOwners_thenReturnBusinessOwnersWithTheLastName() throws BusinessOwnerException {
         String lastName = LAST_NAME_2;
 
-        List<BusinessOwnerEntity> firstNameSameEntities = testBusinessOwnerEntities.stream()
+        List<BusinessOwnerEntity> lastNameSameEntities = testBusinessOwnerEntities.stream()
                 .filter(entity -> entity.getLastName().equals(lastName))
                 .sorted(Comparator.comparing(BusinessOwnerEntity::getFirstName))
                 .toList();
 
-        List<BusinessOwner> firstNameBusinessOwners = testBusinessOwners.stream()
-                .filter(bo -> bo.getLastName().equals(lastName))
-                .sorted(Comparator.comparing(BusinessOwner::getFirstName))
-                .toList();
-
         when(mockBusinessOwnerRepository.getBusinessOwnerEntitiesByFirstNameOrderByFirstName(anyString()))
-                .thenReturn(firstNameSameEntities);
+                .thenReturn(lastNameSameEntities);
 
         List<BusinessOwner> result = subject.getBusinessOwnerListByFirstName(lastName);
 
@@ -297,6 +298,42 @@ class BusinessOwnerServiceTest {
         assertEquals(2, result.size());
 
         verify(mockMapperService, times(2))
+                .mapEntityToObject(any(BusinessOwnerEntity.class));
+    }
+
+    @Test
+    void givenNonExistentLastName_whenCalledToRetrieveListOfBusinessOwners_thenReturnBusinessOwnersEmptyList()
+            throws BusinessOwnerException {
+        String lastName = LAST_NAME_2;
+
+
+        when(mockBusinessOwnerRepository.getBusinessOwnerEntitiesByFirstNameOrderByFirstName(anyString()))
+                .thenReturn(Collections.emptyList());
+
+        List<BusinessOwner> result = subject.getBusinessOwnerListByFirstName(lastName);
+
+        assertNotNull(result);
+        assertEquals(0, result.size());
+
+        verify(mockMapperService, times(0))
+                .mapEntityToObject(any(BusinessOwnerEntity.class));
+    }
+
+    @Test
+    void givenLastName_whenCalledToRetrieveListOfBusinessOwnersReturnsNull_ReturnBusinessOwnersEmptyList()
+            throws BusinessOwnerException {
+        String lastName = LAST_NAME_2;
+
+
+        when(mockBusinessOwnerRepository.getBusinessOwnerEntitiesByFirstNameOrderByFirstName(anyString()))
+                .thenReturn(null);
+
+        List<BusinessOwner> result = subject.getBusinessOwnerListByFirstName(lastName);
+
+        assertNotNull(result);
+        assertEquals(0, result.size());
+
+        verify(mockMapperService, times(0))
                 .mapEntityToObject(any(BusinessOwnerEntity.class));
     }
 
@@ -354,5 +391,30 @@ class BusinessOwnerServiceTest {
                 .thenThrow(new RuntimeException("someException"));
         doNothing().when(mockBusinessOwnerRepository).deleteById(anyLong());
         assertThrows(BusinessOwnerException.class, () -> subject.deleteBusinessOwnerById(1L));
+    }
+
+    @Test
+    void givenExistingBusinessId_whenCheckedForExistenceInDb_returnsTrue() throws BusinessOwnerException {
+        when(mockBusinessOwnerRepository.existsBusinessOwnerEntityByBusinessId(anyLong())).thenReturn(true);
+        boolean result = subject.doesBusinessOwnerWithIdExist(1L);
+        assertTrue(result);
+    }
+
+    @Test
+    void givenNonExistentBusinessId_whenCheckedForExistenceInDb_returnsFalse() throws BusinessOwnerException {
+        when(mockBusinessOwnerRepository.existsBusinessOwnerEntityByBusinessId(anyLong())).thenReturn(false);
+        boolean result = subject.doesBusinessOwnerWithIdExist(1L);
+        assertFalse(result);
+    }
+
+    @Test
+    void givenBusinessId_whenCheckedForExistenceInDbErrorOccurs_thenThrowNewAppExceptionWith500Status()
+            throws BusinessOwnerException {
+        when(mockBusinessOwnerRepository.existsBusinessOwnerEntityByBusinessId(anyLong()))
+                .thenThrow(new RuntimeException("someException"));
+        BusinessOwnerException exception = assertThrows(BusinessOwnerException.class, ()
+                -> subject.doesBusinessOwnerWithIdExist(1L));
+
+        assertEquals(INTERNAL_SERVER_ERROR, exception.getHttpStatus());
     }
 }

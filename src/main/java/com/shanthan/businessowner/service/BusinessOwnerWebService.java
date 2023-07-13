@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.springframework.http.HttpStatus.*;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service
 @Slf4j
@@ -98,7 +99,7 @@ public class BusinessOwnerWebService {
         List<BusinessOwner> result;
 
         try {
-            if (firstName.isBlank()) {
+            if (isEmpty(firstName) || firstName.isBlank()) {
                 log.error("First name is null or empty. ");
                 throw new BusinessOwnerException(BAD_REQUEST, "First name is blank. ");
             }
@@ -117,7 +118,7 @@ public class BusinessOwnerWebService {
         List<BusinessOwner> result;
 
         try {
-            if (lastName.isBlank()) {
+            if (isEmpty(lastName) || lastName.isBlank()) {
                 log.error("Last name is null or empty. ");
                 throw new BusinessOwnerException(BAD_REQUEST, "Last name is blank. ");
             }

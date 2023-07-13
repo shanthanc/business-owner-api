@@ -10,28 +10,29 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice(assignableTypes = BusinessOwnerWebController.class)
 @Slf4j
-public class WebExceptionHandler {
+public class BusinessOwnerWebExceptionHandler {
     @ExceptionHandler(BusinessOwnerException.class)
-    public String error(Model model, BusinessOwnerException exception) {
-        model.addAttribute("errorMessage", exception.getCause().getMessage());
+    public String applicationException(Model model, BusinessOwnerException exception) {
+        model.addAttribute("errorMessage", exception.getMessage());
         return "error";
     }
 
     @ExceptionHandler(RuntimeException.class)
-    public String unexpectedError(Model model, Exception exception) {
+    public String globalException(Model model, Exception exception) {
         model.addAttribute("errorMessage", exception.getMessage());
         return "error";
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    public String missingServletRequestParameterException(MissingServletRequestParameterException exception,
-                                                          Model model) {
+    public String missingServletRequestParameterException(Model model,
+                                                          MissingServletRequestParameterException exception) {
         model.addAttribute("errorMessage", exception.getMessage());
+
         return "error";
     }
 
     @ExceptionHandler(InvalidReferenceException.class)
-    public String unexpectedError(Model model, InvalidReferenceException exception) {
+    public String invalidReferenceException(Model model, InvalidReferenceException exception) {
         model.addAttribute("errorMessage", exception.getMessage());
         return "error";
     }

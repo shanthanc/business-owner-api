@@ -1,9 +1,13 @@
 package com.shanthan.businessowner.testutils;
 
 import com.shanthan.businessowner.model.Address;
+import freemarker.core.Environment;
 
 import java.time.LocalDate;
+import java.time.Period;
+import java.time.temporal.TemporalAmount;
 
+import static java.time.LocalDate.*;
 import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE;
 
 public class TestConstants {
@@ -99,13 +103,21 @@ public class TestConstants {
 
     public static final String SOME_PHONE_3 = "213-546-8790";
 
-    public static final LocalDate SOME_DOB_1 = LocalDate.of(1995, 1, 1);
+    public static final LocalDate SOME_DOB_1 = of(1995, 1, 1);
 
-    public static final LocalDate SOME_DOB_2 = LocalDate.of(1994, 2, 3);
+    public static final LocalDate SOME_DOB_2 = of(1994, 2, 3);
 
-    public static final LocalDate SOME_DOB_3 = LocalDate.of(1998, 3, 4);
+    public static final LocalDate SOME_DOB_3 = of(1998, 3, 4);
+
+    public static final LocalDate SOME_DOB_AFTER_TODAY = now().plus(Period.ofDays(1));
+
+    public static final LocalDate SOME_DOB_BELOW_18_YEARS = now().minusYears(17);
 
     public static final String SOME_DOB_STRING_1 = SOME_DOB_1.format(ISO_LOCAL_DATE);
+
+    public static final String SOME_DOB_AFTER_TODAY_STRING = SOME_DOB_AFTER_TODAY.format(ISO_LOCAL_DATE);
+
+    public static final String SOME_DOB_BELOW_18_YEARS_STRING = SOME_DOB_BELOW_18_YEARS.format(ISO_LOCAL_DATE);
 
     public static final String SOME_DOB_STRING_2 = SOME_DOB_2.format(ISO_LOCAL_DATE);
 
@@ -156,5 +168,17 @@ public class TestConstants {
 
     public static final String ERROR_PAGE = "error";
 
+    public static final String APP_EXCEPTION_MSG = "someAppException";
+
+    public static final String GLOBAL_EXCEPTION_MSG = "someRuntimeException";
+
+    public static final String MISSING_SERVLET_EXCEPTION_PARAMETER = "someParameter";
+    public static final String MISSING_SERVLET_EXCEPTION_PARAMETER_TYPE = "someParameterType";
+
+    public static final String MISSING_SERVLET_ERROR_ATTRIBUTE = "Required request parameter '"+
+            MISSING_SERVLET_EXCEPTION_PARAMETER + "' for method parameter type " +
+            MISSING_SERVLET_EXCEPTION_PARAMETER_TYPE + " is not present";
+
+    public static final String INVALID_REFERENCE_EXCEPTION_MSG = "someInvalidRfrnceException";
 
 }
