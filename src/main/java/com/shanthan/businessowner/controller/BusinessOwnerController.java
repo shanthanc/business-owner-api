@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -15,9 +16,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.ResponseEntity.*;
-import static org.springframework.http.ResponseEntity.ok;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 @RequestMapping("/api")
@@ -43,7 +44,7 @@ public class BusinessOwnerController {
             @ApiResponse(responseCode = "500", description = "Unexpected Internal Error", content = @Content)
     })
     @PostMapping(value = "v1/addBusinessOwner/businessOwner")
-    public ResponseEntity addBusinessOwner(@RequestBody BusinessOwner businessOwner) throws BusinessOwnerException {
+    public ResponseEntity addBusinessOwner(@Valid @RequestBody BusinessOwner businessOwner) throws BusinessOwnerException {
         log.info("Calling BusinessOwner Service to addBusinessOwner -> [{}] to Db ", businessOwner);
         BusinessOwner responseBody = businessOwnerService.addBusinessOwner(businessOwner);
         String idField = responseBody.getBusinessId().toString();
@@ -67,7 +68,7 @@ public class BusinessOwnerController {
             @ApiResponse(responseCode = "500", description = "Unexpected Internal Error", content = @Content)
     })
     @PutMapping(value = "v1/updateBusinessOwner/businessOwner")
-    public ResponseEntity updateBusinessOwner(@RequestBody BusinessOwner businessOwner) throws BusinessOwnerException {
+    public ResponseEntity updateBusinessOwner(@Valid @RequestBody BusinessOwner businessOwner) throws BusinessOwnerException {
         log.info("Calling BusinessOwner Service to updateBusinessOwner with id -> {} ", businessOwner.getBusinessId());
         BusinessOwner result = businessOwnerService.updateBusinessOwner(businessOwner);
         if (isEmpty(result.getBusinessId())) {

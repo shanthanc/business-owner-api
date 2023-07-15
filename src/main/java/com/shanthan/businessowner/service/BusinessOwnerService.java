@@ -102,7 +102,7 @@ public class BusinessOwnerService {
     }
 
     private String substituteIfEmpty(String field, String substitute) {
-        return field.isBlank() ? substitute : field;
+        return isEmpty(field) ? substitute : field;
     }
 
     private LocalDate substituteDateIfEmpty(LocalDate field, LocalDate substitute) {
@@ -110,8 +110,21 @@ public class BusinessOwnerService {
     }
 
     private Address substituteAddressIfEmpty(Address field, Address substitute) {
-
-        return (field.getCity().isBlank()) ? substitute : field;
+        Address address;
+        if(!isEmpty(field)) {
+            address = Address.builder()
+                    .addressLine1(isEmpty(field.getAddressLine1()) ? substitute.getAddressLine1() :
+                            field.getAddressLine1())
+                    .addressLine2(isEmpty(field.getAddressLine2()) ? substitute.getAddressLine2() :
+                            field.getAddressLine2())
+                    .city(isEmpty(field.getCity()) ? substitute.getCity() : field.getCity())
+                    .state(isEmpty(field.getState()) ? substitute.getState() : field.getState())
+                    .zipcode(isEmpty(field.getZipcode()) ? substitute.getZipcode() : field.getZipcode())
+                    .build();
+        } else {
+            return substitute;
+        }
+        return address;
     }
 
     public BusinessOwner getBusinessOwnerByBusinessId(Long businessId) throws BusinessOwnerException {
